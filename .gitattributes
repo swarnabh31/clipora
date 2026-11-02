@@ -1,0 +1,6 @@
+# Use LF line endings everywhere for consistent cross-platform checkouts
+* text=auto eol=lf
+
+# Mark binary files so git never tries to treat them as text
+*.png binary
+*.ico binary

@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Clipora",
+  "version": "1.1.0",
+  "description": "Record your screen, a window, a tab or part of the screen with optional webcam and audio. Local, private, no permissions. Saves MP4 or WebM.",
+  "minimum_chrome_version": "116",
+  "action": {
+    "default_title": "Open Clipora"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

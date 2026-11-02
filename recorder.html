@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clipora</title>
+  <link rel="stylesheet" href="recorder.css">
+</head>
+<body>
+<main class="app">
+  <header class="top">
+    <div class="brand"><span class="logo" aria-hidden="true"></span><h1>Clipora</h1></div>
+    <div class="status" id="status"><span class="dot"></span><span id="statusText">Ready</span></div>
+  </header>
+
+  <!-- 1. Choose what to record -->
+  <section id="viewSetup" class="view">
+    <div class="recover hidden" id="recover" role="status">
+      <div>
+        <strong id="recoverTitle">Unsaved recording found</strong>
+        <span id="recoverInfo"></span>
+      </div>
+      <div class="recover-actions">
+        <button class="btn small primary" id="btnRecover">Recover</button>
+        <button class="btn small" id="btnDiscard">Discard</button>
+      </div>
+    </div>
+
+    <h2>What do you want to record?</h2>
+    <p class="sub">Choose an option, then pick the screen, window or tab in Chrome's picker.</p>
+    <div class="cards">
+      <button class="card" id="btnFull">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+        <strong>Screen, window or tab</strong>
+        <span>Record everything in the source you pick.</span>
+      </button>
+      <button class="card" id="btnRegion">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v13a2 2 0 0 0 2 2h13M3 6h13a2 2 0 0 1 2 2v13"/></svg>
+        <strong>Part of the screen</strong>
+        <span>Pick a source, then drag to select an area.</span>
+      </button>
+    </div>
+    <div class="options">
+      <label class="switch"><input type="checkbox" id="optSystem" checked><span class="track"></span><span>System or tab audio</span></label>
+      <label class="switch"><input type="checkbox" id="optMic"><span class="track"></span><span>Microphone</span></label>
+      <label class="switch"><input type="checkbox" id="optCam"><span class="track"></span><span>Webcam bubble</span></label>
+      <label class="switch"><input type="checkbox" id="optCountdown" checked><span class="track"></span><span>3-2-1 countdown</span></label>
+    </div>
+    <div class="settings">
+      <label class="field"><span>Quality</span>
+        <select id="optQuality">
+          <option value="4000000">Small file (4 Mbps)</option>
+          <option value="8000000">Standard (8 Mbps)</option>
+          <option value="16000000">High (16 Mbps)</option>
+        </select>
+      </label>
+      <label class="field"><span>Frame rate</span>
+        <select id="optFps">
+          <option value="30">30 fps</option>
+          <option value="60">60 fps (games, motion)</option>
+        </select>
+      </label>
+      <label class="field"><span>Format</span>
+        <select id="optFormat">
+          <option value="mp4">MP4 (Chrome 126+)</option>
+          <option value="webm">WebM</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <!-- 2. Preview + controls -->
+  <section id="viewStage" class="view hidden">
+    <div class="stage" id="stage">
+      <video id="live" autoplay muted playsinline></video>
+      <div class="selection hidden" id="selection"></div>
+      <video id="cam" class="cam hidden" autoplay muted playsinline title="Drag to move the camera"></video>
+      <div class="hint hidden" id="hint">Drag on the preview to select the area to record</div>
+      <div class="countdown hidden" id="countdown" aria-live="assertive"></div>
+    </div>
+
+    <div class="stagebar">
+      <div class="meters hidden" id="meters" aria-label="Audio levels">
+        <div class="meter" id="mSys"><span class="mlabel">System audio</span><div class="mbar"><div class="mfill"></div></div><span class="mnote"></span></div>
+        <div class="meter" id="mMic"><span class="mlabel">Microphone</span><div class="mbar"><div class="mfill"></div></div><span class="mnote"></span></div>
+      </div>
+      <label class="camsize hidden" id="camOpts"><span>Camera size</span><input type="range" id="camSize" min="10" max="40" step="1"></label>
+    </div>
+
+    <div class="timer" id="timer">00:00</div>
+    <div class="controls">
+      <div class="ctl"><button class="round play" id="btnPlay" aria-label="Record" aria-keyshortcuts="Space" title="Record / Resume (Space)"><svg viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg></button><span id="lblPlay">Record</span></div>
+      <div class="ctl"><button class="round" id="btnPause" aria-label="Pause" aria-keyshortcuts="Space" title="Pause (Space)"><svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg></button><span>Pause</span></div>
+      <div class="ctl"><button class="round stop" id="btnStop" aria-label="Stop" title="Stop and review"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button><span>Stop</span></div>
+    </div>
+    <p class="keys"><kbd>Space</kbd> record / pause / resume &nbsp;·&nbsp; <kbd>Esc</kbd> cancel</p>
+    <button class="link" id="btnCancel" title="Esc">Choose a different source</button>
+  </section>
+
+  <!-- 3. Preview + save -->
+  <section id="viewResult" class="view hidden">
+    <video id="result" controls playsinline></video>
+    <p class="meta" id="meta"></p>
+
+    <div class="namerow">
+      <label for="fileName">File name</label>
+      <div class="nameinput"><input id="fileName" type="text" spellcheck="false" maxlength="120" autocomplete="off"><span id="fileExt">.mp4</span></div>
+    </div>
+
+    <details class="trim" id="trim">
+      <summary>Trim start and end</summary>
+      <div class="trim-body">
+        <label class="trimrow"><span>Start</span><input type="range" id="trimStart" min="0" max="1" step="0.05" value="0"></label>
+        <label class="trimrow"><span>End</span><input type="range" id="trimEnd" min="0" max="1" step="0.05" value="1"></label>
+        <p class="trim-info" id="trimInfo"></p>
+        <div class="actions">
+          <button class="btn small" id="btnTrimPreview">Preview selection</button>
+          <button class="btn small primary" id="btnTrimApply">Apply trim</button>
+          <button class="btn small hidden" id="btnTrimCancel">Cancel</button>
+          <button class="btn small hidden" id="btnTrimRestore">Restore original</button>
+        </div>
+        <p class="trim-note">Trimming re-encodes the clip in real time, so a 1-minute clip takes about a minute. Keep this window open.</p>
+      </div>
+    </details>
+
+    <div class="actions">
+      <button class="btn primary" id="btnSave" title="Save (S)">Save as MP4</button>
+      <button class="btn" id="btnNew" title="New recording (N)">New recording</button>
+    </div>
+    <p class="keys"><kbd>S</kbd> save &nbsp;·&nbsp; <kbd>N</kbd> new recording</p>
+  </section>
+
+  <div class="toast" id="toast" role="status"></div>
+</main>
+<script src="webm-fix.js"></script>
+<script src="recorder.js"></script>
+</body>
+</html>

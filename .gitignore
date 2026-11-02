@@ -1,0 +1,28 @@
+# Operating systems
+.DS_Store
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary files
+*.tmp
+.tmp/
+node_modules/
+
+# Local overrides / secrets (keep the repo clean)
+*.local
+.env
+.env.*
